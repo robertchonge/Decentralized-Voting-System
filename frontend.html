@@ -1,1 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decentralized Voting System</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.3.5/dist/web3.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        button { margin: 10px; padding: 10px 20px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>Decentralized Voting System</h1>
+    <h3>Vote for your candidate</h3>
 
+    <label for="candidates">Select a candidate:</label>
+    <select id="candidates"></select>
+
+    <button onclick="vote()">Vote</button>
+    <button onclick="closeVoting()">Close Voting</button>
+
+    <h3>Current Candidates:</h3>
+    <ul id="candidateList"></ul>
+
+    <script>
+        const contractAddress = CONTRACT_ADDRESS'; 
+        const contractABI = [...] 
+
+        const web3 = new Web3(window.ethereum);
+        let contract = new web3.eth.Contract(contractABI, contractAddress);
+
+        async function loadCandidates() {
+            const candidates = await contract.methods.getCandidates().call();
+            const candidatesSelect = document.getElementById('candidates');
+            const candidateList = document.getElementById('candidateList');
+            candidatesSelect.innerHTML = '';
+            candidateList.innerHTML = '';
+            candidates.forEach(candidate => {
+                const option = document.createElement('option');
+                option.text = candidate;
+                candidatesSelect.add(option);
+                const listItem = document.createElement('li');
+                listItem.innerText = candidate;
+                candidateList.appendChild(listItem);
+            });
+        }
+
+        async function vote() {
+            const selectedCandidate = document.getElementById('candidates').value;
+            const accounts = await web3.eth.getAccounts();
+            contract.methods.vote(selectedCandidate).send({ from: accounts[0] })
+                .then(() => {
+                    alert('Vote successfully casted!');
+                })
+                .catch(err => {
+                    alert('Error casting vote: ' + err);
+                });
+        }
+
+        async function closeVoting() {
+            const accounts = await web3.eth.getAccounts();
+            contract.methods.closeVoting().send({ from: accounts[0] })
+                .then(() => {
+                    alert('Voting has been closed.');
+                })
+                .catch(err => {
+                    alert('Error closing voting: ' + err);
+                });
+        }
+
+        window.ethereum.enable().then(loadCandidates);
+    </script>
+</body>
+</html>
